@@ -1,62 +1,258 @@
 {
-  "info": {
-    "name": "Prop Cert API",
-    "_postman_id": "2528382b-ac42-4109-8ab9-c14b5f32f253",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "Add Product",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "x-api-key",
-            "value": "mysecretkey"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\"sku\":\"PROD-001\",\"name\":\"Laptop\",\"price\":1299.99,\"quantity\":50,\"category\":\"Electronics\",\"supplier\":\"TechCorp\"}"
-        },
-        "url": {
-          "raw": "http://localhost:3000/api/products",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "3000",
-          "path": [
-            "api",
-            "products"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Get Product",
-      "request": {
-        "method": "GET",
-        "header": [
-          {
-            "key": "x-api-key",
-            "value": "mysecretkey"
-          }
-        ],
-        "url": {
-          "raw": "http://localhost:3000/api/products/PROD-001",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "3000",
-          "path": [
-            "api",
-            "products",
-            "PROD-001"
-          ]
-        }
-      }
-    }
-  ]
+	"info": {
+		"_postman_id": "6bf99be2-4c80-4396-beaf-8dc95817be67",
+		"name": "Prep-Cert",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1295215"
+	},
+	"item": [
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Add Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "propcert_2025",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sku\": \"PROD-006\",\n  \"name\": \"Laptop\",\n  \"description\": \"Working Laptop\",\n  \"price\": 1499.99,\n  \"quantity\": 10,\n  \"category\": \"Electronics\",\n  \"supplier\": \"TechCorp\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/product",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"product"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "propcert_2025",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/products/:sku",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"products",
+								":sku"
+							],
+							"variable": [
+								{
+									"key": "sku",
+									"value": "PROD-005"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Inventory",
+			"item": [
+				{
+					"name": "Add Transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "propcert_2025",
+								"type": "text"
+							},
+							{
+								"key": "x-user-email",
+								"value": "prepcert@example.com",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sku\": \"PROD-001\",\n  \"type\": \"OUT\",\n  \"quantity\": 15,\n  \"reason\": \"Sale Order #123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/inventory/transaction",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"inventory",
+								"transaction"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transaction History",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "propcert_2025",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/inventory/history/:sku",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"inventory",
+								"history",
+								":sku"
+							],
+							"query": [
+								{
+									"key": "size",
+									"value": "2",
+									"description": "Integer. Optional. Default to 1000",
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "sku",
+									"value": "PROD-001"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Transaction",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "propcert_2025",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/audit/verify/:transaction_id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"audit",
+								"verify",
+								":transaction_id"
+							],
+							"variable": [
+								{
+									"key": "transaction_id",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Snapshot",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "propcert_2025",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/inventory/snapshot",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"inventory",
+								"snapshot"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/health",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		}
+	]
 }
