@@ -1,0 +1,62 @@
+{
+  "info": {
+    "name": "Prop Cert API",
+    "_postman_id": "2528382b-ac42-4109-8ab9-c14b5f32f253",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Add Product",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "mysecretkey"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"sku\":\"PROD-001\",\"name\":\"Laptop\",\"price\":1299.99,\"quantity\":50,\"category\":\"Electronics\",\"supplier\":\"TechCorp\"}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/products",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "products"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Product",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "mysecretkey"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/products/PROD-001",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "products",
+            "PROD-001"
+          ]
+        }
+      }
+    }
+  ]
+}

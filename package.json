@@ -1,0 +1,17 @@
+{
+  "name": "prop-cert",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=.env src/app.js",
+    "dev": "node --watch --env-file=.env src/app.js"
+  },
+  "dependencies": {
+    "@codenotary/immudb-node": "^2.0.0-alpha.1",
+    "axios": "^1.7.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-validator": "^7.3.0",
+    "uuid": "^9.0.1"
+  }
+}
