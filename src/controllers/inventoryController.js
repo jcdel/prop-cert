@@ -89,6 +89,13 @@ export const createTransaction = async (req, res) => {
       JSON.stringify(transaction)
     );
 
+    //store by transaction ID for audit lookup
+    const transactionIdKey = `transaction:id:${transaction.transaction_id}`;
+    await immudb.verifiedSet(
+      transactionIdKey,
+      JSON.stringify(transaction)
+    );
+
     res.status(201).json({
       transaction,
       verification: true,
@@ -172,7 +179,7 @@ export const getSnapshot = async (req, res) => {
        
         if (txs && txs.length > 0) {
           for (const tx of txs) {
-            
+
             const txObj = JSON.parse(tx.valTxEntry.val);
             quantity += txObj.quantity_change;
             lastTxTs = txObj.timestamp;
