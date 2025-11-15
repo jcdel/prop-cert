@@ -1,16 +1,19 @@
-# Shop Inventory Management System (PropCert Tech Challenge)
 
-An immutable inventory system using Immudb, Node.js, and Express.
+# PropCert Inventory Management System
+
+An immutable inventory and audit system using Immudb, Node.js, and Express.
 
 ---
 
 ## ✨ Features
 
-- **Add and query products** with tamper-proof storage
-- **Record IN/OUT/ADJUSTMENT transactions**, cryptographically verified
-- **Query inventory history** with running balance and verification
-- **API-key authentication**
-- **Append-only inventorial data**, with verifiability proofs available via API
+- Add/query products with tamper-proof storage
+- Record IN/OUT/ADJUSTMENT transactions (cryptographically verified)
+- Query inventory history with running balance and verification
+- Audit and verify any transaction by ID
+- Time-travel inventory: get stock at any date
+- API-key authentication (middleware)
+- Append-only inventorial data, with verifiability proofs available via API
 
 ---
 
@@ -46,12 +49,12 @@ An immutable inventory system using Immudb, Node.js, and Express.
 
 ## 🔒 API Authentication
 
-_All requests require an API key header:_
+All requests require an API key header:
 ```
 x-api-key: your_api_key
 ```
 
-_Inventory transaction POSTs also require:_
+Inventory transaction POSTs also require:
 ```
 x-user-email: example@user.email
 ```
@@ -60,26 +63,29 @@ x-user-email: example@user.email
 
 ## 🛠️ API Endpoints
 
-| Method | Endpoint                                 | Description                                     |
-|--------|------------------------------------------|-------------------------------------------------|
-| POST   | `/api/product`                           | Add a product, returns verification hash        |
-| GET    | `/api/product/:sku`                      | Get product details & current stock             |
-| POST   | `/api/inventory/transaction`             | Record inventory IN/OUT/ADJUSTMENT              |
-| GET    | `/api/inventory/history/:sku`            | Transaction history for a product               |
-| GET    | `/api/audit/verify/:transaction_id`      | Verify a specific transaction                   |
-| GET    | `/api/inventory/snapshot`                | Current inventory for all products              |
+| Method | Endpoint                                      | Description                                      |
+|--------|-----------------------------------------------|--------------------------------------------------|
+| POST   | `/api/product`                                | Add a product, returns verification hash         |
+| GET    | `/api/product/:sku`                           | Get product details & current stock              |
+| POST   | `/api/inventory/transaction`                  | Record inventory IN/OUT/ADJUSTMENT               |
+| GET    | `/api/inventory/history/:sku`                 | Transaction history for a product                |
+| GET    | `/api/inventory/snapshot`                     | Current inventory for all products               |
+| GET    | `/api/audit/verify/:transaction_id`           | Verify a specific transaction                    |
+| GET    | `/api/feature/time-travel/:sku/at/:timestamp` | Get inventory for a SKU at a specific date       |
+| GET    | `/health`                                     | Health check endpoint                            |
 
 ---
 
-## 🏗️ Design Decisions
+## 🏗️ Design & Architecture
 
-- **Keyspace:** Items prefixed by type (`product:SKU`, `transaction:SKU`).
+- **Keyspace:** Items prefixed by type (`product:SKU`, `transaction:SKU`, `transaction:id:ID`).
 - **Verified mutations:** All updates use Immudb's verified sets, with cryptographic proofs provided to the client.
 - **Atomic stock calculation:** All SKU transactions are history-scanned for real-time balance.
 - **Audit:** Every transaction logs performing user and timestamp.
+- **Time-travel:** Query inventory as of any date using `/api/feature/time-travel/:sku/at/:timestamp`.
 
 ---
 
 ## 📦 Postman Collection
 
-See [`postman_collection.json`](./postman_collection.json) for ready-made API requests.
+See [`postman_collection.json`](./postman_collection.json) for ready-made API requests and examples.

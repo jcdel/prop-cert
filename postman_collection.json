@@ -199,7 +199,7 @@
 							"variable": [
 								{
 									"key": "transaction_id",
-									"value": null
+									"value": "f2d78118-d290-490d-beb2-2b29a5226178"
 								}
 							]
 						}
@@ -228,6 +228,51 @@
 								"api",
 								"inventory",
 								"snapshot"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Bonus Feature",
+			"item": [
+				{
+					"name": "Time travel Query",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "propcert_2025",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/api/feature/time-travel/:sku/at/:timestamp",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"feature",
+								"time-travel",
+								":sku",
+								"at",
+								":timestamp"
+							],
+							"variable": [
+								{
+									"key": "sku",
+									"value": null
+								},
+								{
+									"key": "timestamp",
+									"value": null
+								}
 							]
 						}
 					},
