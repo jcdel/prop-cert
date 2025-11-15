@@ -1,6 +1,6 @@
+import { v4 as uuidv4 } from 'uuid';
 import immudb from '../services/immudbService.js';
 import { isImmuDbNotFoundError } from '../utils/immudbUtils.js';
-import { v4 as uuidv4 } from 'uuid';
 import { query, param, body, validationResult } from 'express-validator';
 
 // Validation middleware (customize as needed)
@@ -61,7 +61,6 @@ export const createTransaction = async (req, res) => {
       }
     } catch (err) {
       console.error(`Failed to retrieve/process history for SKU ${sku}:`, err);
-      //return res.status(500).json({ message: 'Error retrieving stock history' });
     }
 
     let qChange =
@@ -128,7 +127,6 @@ export const getHistory = async (req, res) => {
       try {
         tx = JSON.parse(item.valTxEntry.val);
       } catch (parseErr) {
-        // Skip corrupted entries, or you can return 500 if you want to be strict
         console.warn('Skipping malformed transaction in SKU:', sku, parseErr);
         return null;
       }
@@ -159,13 +157,11 @@ export const getSnapshot = async (req, res) => {
       .map(entry => entry.key.toString('utf8'))
       .filter(key => key.startsWith('product:'))
       .map(key => key.replace('product:', ''));
-    //console.log('productSkus:', productSkus);
 
     const snapshot = [];
 
     for (const sku of productSkus) {
       const productRes = await immudb.verifiedGet(`product:${sku}`);
-      //console.log('productRes for snapshot:', productRes);
 
       let quantity = 0;
       let lastTxTs = null;
@@ -173,13 +169,11 @@ export const getSnapshot = async (req, res) => {
       try {
 
         const txs = await immudb.history(`transaction:${sku}`, 1000);
-        //console.log('txsssssssssssssss for snapshot:', txs);
        
         if (txs && txs.length > 0) {
           for (const tx of txs) {
+            
             const txObj = JSON.parse(tx.valTxEntry.val);
-
-            //console.log('txObj for snapshot:', txObj);
             quantity += txObj.quantity_change;
             lastTxTs = txObj.timestamp;
           }

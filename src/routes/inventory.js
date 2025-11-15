@@ -1,6 +1,6 @@
 import express from 'express';
-import { validateTransaction, validateGetHistory, createTransaction, getHistory, getSnapshot } from '../controllers/inventoryController.js';
 import auth from '../middlewares/auth.js';
+import { validateTransaction, validateGetHistory, createTransaction, getHistory, getSnapshot } from '../controllers/inventoryController.js';
 
 const router = express.Router();
 

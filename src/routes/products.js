@@ -1,6 +1,6 @@
 import express from 'express';
-import { validateProduct, validateSkuParam, addProduct, getProduct } from '../controllers/productsController.js';
 import auth from '../middlewares/auth.js';
+import { validateProduct, validateSkuParam, addProduct, getProduct } from '../controllers/productsController.js';
 
 const router = express.Router();
 

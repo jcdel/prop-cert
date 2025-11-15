@@ -1,7 +1,4 @@
-import {
-  Client,
-  verifyVerification,
-} from '@codenotary/immudb-node';
+import { Client, verifyVerification } from '@codenotary/immudb-node';
 
 class ImmudbService {
   constructor() {
@@ -78,9 +75,8 @@ class ImmudbService {
       });
 
       const verificationValid = verifyVerification(result.verification);
-      //console.log('Set Verification:', result.verification);
 
-      result.txHash = state.txHash; // Attach current txHash for reference
+      result.txHash = state.txHash;
 
       if (!verificationValid) {
         throw new Error('ImmuDB verification failed during set operation');
@@ -102,7 +98,6 @@ class ImmudbService {
       });
 
       const verificationValid = verifyVerification(result.verification);
-      //console.log('Set Verification:', result.verification);
 
       if (!verificationValid) {
         throw new Error('ImmuDB verification failed during get operation');
