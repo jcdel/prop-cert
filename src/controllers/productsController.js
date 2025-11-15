@@ -1,15 +1,12 @@
 import immudb from '../services/immudbService.js';
 import { validationResult } from 'express-validator';
-import { isImmuDbNotFoundError } from '../utils/immudbUtils.js';
+import { isImmuDbNotFoundError, responseHelper } from '../utils/immudbUtils.js';
 
 export const addProduct = async (req, res) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
-      errors: errors.array(),
-      message: "Validation failed"
-    });
+    return responseHelper(res, 400, 'Validation failed', { errors: errors.array() });
   }
 
   try {
@@ -20,7 +17,7 @@ export const addProduct = async (req, res) => {
     // Check if product already exists
     try {
       await immudb.verifiedGet(key);
-      return res.status(409).json({ message: `Product with SKU: ${product.sku} already exists` });
+      return responseHelper(res, 409, `Product with SKU: ${product.sku} already exists`);
     } catch (err) {
       if (!isImmuDbNotFoundError(err)) {
         throw err;
@@ -29,12 +26,9 @@ export const addProduct = async (req, res) => {
 
     const result = await immudb.verifiedSet(key, value);
 
-    return res.status(201).json({
-      product,
-      verification: result.txHash
-    });
+    return responseHelper(res, 201, 'Created', { product, verification: result.txHash });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    return responseHelper(res, 500, e.message);
   }
 };
 
@@ -42,11 +36,7 @@ export const getProduct = async (req, res) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
-      errors: errors.array(),
-      message: 'Validation failed for SKU parameter',
-      sku: req.params.sku,
-    });
+    return responseHelper(res, 400, 'Validation failed', { errors: errors.array(), sku: req.params.sku });
   }
 
   const { sku } = req.params;
@@ -56,7 +46,7 @@ export const getProduct = async (req, res) => {
     // Retrieve product from immudb
     const productRes = await immudb.verifiedGet(key);
     if (!productRes.valEntry?.val) {
-      return res.status(404).json({ message: 'Product not found' });
+      return responseHelper(res, 404, 'Product not found');
     }
 
     let product;
@@ -64,7 +54,7 @@ export const getProduct = async (req, res) => {
       product = JSON.parse(productRes.valEntry.val);
     } catch (parseErr) {
       console.error(`Corrupt product entry for SKU: ${sku}`, parseErr);
-      return res.status(500).json({ message: 'Corrupt product data', sku });
+      return responseHelper(res, 500, 'Corrupt product data', { sku });
     }
 
     // Default to initial quantity if no transactions
@@ -88,17 +78,16 @@ export const getProduct = async (req, res) => {
         }
       }
     } catch (err) {
-      console.error(`Failed to retrieve or process transaction history for SKU ${sku}:`, err);
     }
 
     product.current_stock = calculatedStock;
-    return res.json({ product });
+    return responseHelper(res, 200, 'Success', { product });
   } catch (err) {
     if (isImmuDbNotFoundError(err)) {
       console.error('No product found for SKU:', sku);
-      return res.status(404).json({ message: `No product found for SKU: ${sku}` });
+      return responseHelper(res, 404, `No product found for SKU: ${sku}`);
     }
     console.error('Error retrieving product for SKU:', sku, err);
-    return res.status(500).json({ message: `Error retrieving product for SKU: ${sku}` });
+    return responseHelper(res, 500, `Error retrieving product for SKU: ${sku}`);
   }
-}
+};

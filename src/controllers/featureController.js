@@ -1,18 +1,18 @@
 import immudb from '../services/immudbService.js';
 import { validationResult } from 'express-validator';
-import { isImmuDbNotFoundError } from '../utils/immudbUtils.js';
+import { isImmuDbNotFoundError, responseHelper } from '../utils/immudbUtils.js';
 
 export const getInventoryAtTimestamp = async (req, res) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return responseHelper(res, 400, 'Validation failed', { errors: errors.array() });
   }
 
   const { sku, timestamp } = req.params;
   const targetTime = new Date(timestamp);
   if (isNaN(targetTime.getTime())) {
-    return res.status(400).json({ message: 'Invalid timestamp' });
+    return responseHelper(res, 400, 'Invalid timestamp');
   }
   // Helper to get YYYY-MM-DD string
   const getDateString = (date) => date.toISOString().slice(0, 10);
@@ -35,7 +35,7 @@ export const getInventoryAtTimestamp = async (req, res) => {
           if (!t.timestamp) continue;
           const tTime = new Date(t.timestamp);
           if (isNaN(tTime.getTime())) continue;
-          
+
           if (getDateString(tTime) === targetDateStr) {
             inventoryAt += Number(t.quantity_change || 0);
             transactions.push(t);
@@ -47,7 +47,7 @@ export const getInventoryAtTimestamp = async (req, res) => {
       }
     }
 
-    return res.json({
+    return responseHelper(res, 200, 'Success', {
       sku,
       timestamp: targetTime.toISOString(),
       inventory: inventoryAt,
@@ -55,10 +55,9 @@ export const getInventoryAtTimestamp = async (req, res) => {
     });
   } catch (e) {
     console.error('getInventoryAtTimestamp error:', e);
-
     if (typeof isImmuDbNotFoundError === 'function' && isImmuDbNotFoundError(e)) {
-      return res.status(404).json({ message: 'No transactions found for SKU' });
+      return responseHelper(res, 404, 'No transactions found for SKU');
     }
-    return res.status(500).json({ error: e.message });
+    return responseHelper(res, 500, e.message);
   }
 };

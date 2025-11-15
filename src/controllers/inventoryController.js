@@ -1,13 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import immudb from '../services/immudbService.js';
 import { validationResult } from 'express-validator';
-import { isImmuDbNotFoundError } from '../utils/immudbUtils.js';
+import { isImmuDbNotFoundError, responseHelper } from '../utils/immudbUtils.js';
 
 export const createTransaction = async (req, res) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return responseHelper(res, 400, 'Validation failed', { errors: errors.array() });
   }
 
   try {
@@ -15,7 +15,7 @@ export const createTransaction = async (req, res) => {
     // Check if product exists
     const productRes = await immudb.verifiedGet(`product:${sku}`);
     if (!productRes.valEntry?.val) {
-      return res.status(404).json({ message: 'Product not found' });
+      return responseHelper(res, 404, 'Product not found');
     }
 
     const transactionKey = `transaction:${sku}`;
@@ -52,7 +52,7 @@ export const createTransaction = async (req, res) => {
     }
 
     if (type === 'OUT' && currentStock + qChange < 0) {
-      return res.status(400).json({ message: 'Insufficient stock' });
+      return responseHelper(res, 400, 'Insufficient stock');
     }
 
     const transaction = {
@@ -71,9 +71,9 @@ export const createTransaction = async (req, res) => {
     const transactionIdKey = `transaction:id:${transaction.transaction_id}`;
     await immudb.verifiedSet(transactionIdKey, JSON.stringify(transaction));
 
-    res.status(201).json({ transaction, verification: true });
+    return responseHelper(res, 201, 'Created', { transaction, verification: true });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    return responseHelper(res, 500, e.message);
   }
 };
 
@@ -81,11 +81,7 @@ export const getHistory = async (req, res) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
-      errors: errors.array(),
-      message: 'Validation failed for parameters',
-      sku: req.params.sku,
-    });
+    return responseHelper(res, 400, 'Validation failed', { errors: errors.array(), sku: req.params.sku });
   }
 
   const { sku } = req.params;
@@ -95,7 +91,7 @@ export const getHistory = async (req, res) => {
   try {
     const history = await immudb.history(`transaction:${sku}`, size);
     if (!Array.isArray(history) || history.length === 0) {
-      return res.status(404).json({ message: `No transactions found for SKU: ${sku}`, sku });
+      return responseHelper(res, 404, `No transactions found for SKU: ${sku}`, { sku });
     }
 
     let runningBalance = 0;
@@ -117,13 +113,12 @@ export const getHistory = async (req, res) => {
       };
     }).filter(Boolean); // Remove any nulls from parse failures
 
-    res.json({ sku, transactions, runningBalance });
+    return responseHelper(res, 200, 'Success', { sku, transactions, runningBalance });
   } catch (err) {
     if (isImmuDbNotFoundError(err)) {
-      console.error('No transactions found for SKU:', sku, err);
-      return res.status(404).json({ message: `No transactions found for SKU: ${sku}` });
+      return responseHelper(res, 404, `No transactions found for SKU: ${sku}`);
     }
-    return res.status(500).json({ message: `Error retrieving transactions for SKU: ${sku}` });
+    return responseHelper(res, 500, `Error retrieving transactions for SKU: ${sku}`);
   }
 };
 
@@ -162,8 +157,8 @@ export const getSnapshot = async (req, res) => {
         last_transaction_timestamp: lastTxTimestamp,
       });
     }
-    res.json({ snapshot });
+    return responseHelper(res, 200, 'Success.', { snapshot });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    return responseHelper(res, 500, e.message);
   }
 };
