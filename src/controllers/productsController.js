@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import immudb from '../services/immudbService.js';
 import { validationResult } from 'express-validator';
 import { isImmuDbNotFoundError, responseHelper } from '../utils/immudbUtils.js';
@@ -25,6 +26,20 @@ export const addProduct = async (req, res) => {
     }
 
     const result = await immudb.verifiedSet(key, value);
+
+    const transactionKey = `transaction:${product.sku}`;
+    const transaction = {
+      transaction_id: uuidv4(),
+      sku: product.sku,
+      type: 'IN',
+      quantity_change: product.quantity,
+      reason: 'Initial stock',
+      performed_by: req.user?.email || 'unknown',
+      timestamp: new Date().toISOString(),
+    };
+
+    // Store transaction initial stock for a product
+    await immudb.verifiedSet(transactionKey, JSON.stringify(transaction));
 
     return responseHelper(res, 201, 'Created', { product, verification: result.txHash });
   } catch (e) {
@@ -81,6 +96,8 @@ export const getProduct = async (req, res) => {
     }
 
     product.current_stock = calculatedStock;
+
+    //product.current_stock = product.quantity;
     return responseHelper(res, 200, 'Success', { product });
   } catch (err) {
     if (isImmuDbNotFoundError(err)) {

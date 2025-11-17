@@ -13,15 +13,15 @@ export const createTransaction = async (req, res) => {
   try {
     const { sku, type, reason, quantity } = req.body;
     // Check if product exists
-    const productRes = await immudb.verifiedGet(`product:${sku}`);
+    const productKey = `product:${sku}`;
+    const productRes = await immudb.verifiedGet(productKey);
     if (!productRes.valEntry?.val) {
       return responseHelper(res, 404, 'Product not found');
     }
 
     const transactionKey = `transaction:${sku}`;
 
-    // Calculate current stock from transaction history
-    let currentStock = 0;
+    let currentStock  = 0;
     try {
       const history = await immudb.history(transactionKey, 1000);
       if (Array.isArray(history)) {
@@ -67,9 +67,13 @@ export const createTransaction = async (req, res) => {
 
     // Store transaction by SKU
     await immudb.verifiedSet(transactionKey, JSON.stringify(transaction));
+    
     // Store transaction by transaction ID for audit lookup
     const transactionIdKey = `transaction:id:${transaction.transaction_id}`;
     await immudb.verifiedSet(transactionIdKey, JSON.stringify(transaction));
+
+    //update product
+    await immudb.verifiedSet(productKey, JSON.stringify({ ...JSON.parse(productRes.valEntry.val), quantity: currentStock +  qChange}));
 
     return responseHelper(res, 201, 'Created', { transaction, verification: true });
   } catch (e) {
