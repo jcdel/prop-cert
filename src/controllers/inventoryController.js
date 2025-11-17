@@ -67,7 +67,7 @@ export const createTransaction = async (req, res) => {
 
     // Store transaction by SKU
     await immudb.verifiedSet(transactionKey, JSON.stringify(transaction));
-    
+
     // Store transaction by transaction ID for audit lookup
     const transactionIdKey = `transaction:id:${transaction.transaction_id}`;
     await immudb.verifiedSet(transactionIdKey, JSON.stringify(transaction));
@@ -151,8 +151,8 @@ export const getSnapshot = async (req, res) => {
             lastTxTimestamp = txObj.timestamp;
           }
         }
-      } catch (error) {
-        // Optionally log error
+      } catch (err) {
+        console.error(`Failed to retrieve/process history for SKU ${sku}:`, err);
       }
       snapshot.push({
         sku,

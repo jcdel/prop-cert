@@ -72,8 +72,7 @@ export const getProduct = async (req, res) => {
       return responseHelper(res, 500, 'Corrupt product data', { sku });
     }
 
-    // Default to initial quantity if no transactions
-    let calculatedStock = product.quantity || 0;
+    let calculatedStock = 0;
 
     // Calculate current stock from transaction history
     try {
@@ -97,7 +96,6 @@ export const getProduct = async (req, res) => {
 
     product.current_stock = calculatedStock;
 
-    //product.current_stock = product.quantity;
     return responseHelper(res, 200, 'Success', { product });
   } catch (err) {
     if (isImmuDbNotFoundError(err)) {
